@@ -3,6 +3,7 @@ package smartlms.controller;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import smartlms.dto.request.GroupRequestDto;
 import smartlms.dto.response.ApiResponse;
@@ -17,7 +18,7 @@ public class GroupController {
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<?>> createGroup(@RequestBody GroupRequestDto groupRequestDto) {
         groupService.addGroup(groupRequestDto);
@@ -26,6 +27,7 @@ public class GroupController {
                 .body(new ApiResponse<>(true, "Group created successfully", null, 201));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<?>> getAllGroups(Pageable pageable) {
         return ResponseEntity

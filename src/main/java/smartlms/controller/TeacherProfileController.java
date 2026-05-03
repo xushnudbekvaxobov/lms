@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import smartlms.dto.request.TeacherProfileRequestDto;
 import smartlms.dto.response.ApiResponse;
@@ -21,6 +22,7 @@ public class TeacherProfileController {
 
     private final TeacherProfileService teacherProfileService;
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<?>> getMyProfile() {
         TeacherProfileResponseDto profile = teacherProfileService.getCurrentTeacherProfile();
@@ -29,6 +31,7 @@ public class TeacherProfileController {
                 .body(new ApiResponse<>(true, "Profile retrieved successfully", profile, 200));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @PutMapping("/{teacherId}")
     public ResponseEntity<ApiResponse<?>> updateMyProfile(@PathVariable UUID teacherId, @RequestBody @Valid TeacherProfileRequestDto requestDto) {
         teacherProfileService.updateTeacherProfileById(teacherId, requestDto);
@@ -37,6 +40,7 @@ public class TeacherProfileController {
                 .body(new ApiResponse<>(true, "Profile updated successfully", null, 200));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<?>> getAllProfiles(Pageable pageable) {
         PageResponse<?> profiles = teacherProfileService.getTeacherProfiles(pageable);

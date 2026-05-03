@@ -3,6 +3,7 @@ package smartlms.controller;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import smartlms.dto.request.AssignmentRequestDto;
 import smartlms.dto.response.ApiResponse;
@@ -20,6 +21,7 @@ public class AssigmentController {
         this.assignmentService = assignmentService;
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/students/my/{groupSubjectId}")
     public ResponseEntity<ApiResponse<?>> getMyAssignmentsForStudents(@PathVariable UUID groupSubjectId,
                                                                       Pageable pageable) {
@@ -27,6 +29,7 @@ public class AssigmentController {
                 .ok(new ApiResponse<>(true, "Assignments retrieved successfully", assignmentService.getMyAssignmentsForStudents(groupSubjectId, pageable), 200));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @PostMapping("/{groupSubjectId}")
     public ResponseEntity<ApiResponse<?>> createAssignment(@PathVariable UUID groupSubjectId, @RequestBody AssignmentRequestDto assignmentRequestDto) {
        assignmentService.createAssignments(groupSubjectId, assignmentRequestDto);
@@ -35,6 +38,7 @@ public class AssigmentController {
                 .body(new ApiResponse<>(true, "Assignment created successfully", null, 201));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/teachers/my/{groupSubjectId}")
     public ResponseEntity<ApiResponse<?>> getMyAssignmentsForTeachers(@PathVariable UUID groupSubjectId) {
         return ResponseEntity

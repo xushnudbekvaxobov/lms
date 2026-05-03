@@ -1,0 +1,130 @@
+Table users {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  email varchar [not null, unique]
+  password varchar [not null]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  phone varchar
+  role varchar [not null]
+  status varchar [not null, default: 'ACTIVE']
+  enabled boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table student_profiles {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, unique, ref: > users.uuid]
+  student_id varchar [not null, unique]
+  birth_date date
+  address text
+  gender varchar
+  parent_name varchar
+  parent_phone varchar
+  created_at timestamp [not null]
+}
+
+Table teacher_profiles {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, unique, ref: > users.uuid]
+  teacher_id varchar [not null, unique]
+  specialization varchar
+  degree varchar
+  experience_years int
+  gender varchar
+  created_at timestamp [not null]
+}
+
+Table groups {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null, unique]
+  description text
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  max_students int
+  current_students int [default: 0]
+  active boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table subjects {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  code varchar [unique]
+  description text
+  credits int
+  total_hours int
+  active boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table group_subjects {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  group_id uuid [not null, ref: > groups.uuid]
+  subject_id uuid [not null, ref: > subjects.uuid]
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  semester int
+  hours_per_week int
+  created_at timestamp [not null]
+}
+
+Table schedules {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  group_id uuid [not null, ref: > groups.uuid]
+  subject_id uuid [not null, ref: > subjects.uuid]
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  day_of_week varchar [not null]
+  start_time time [not null]
+  end_time time [not null]
+  room varchar
+  lesson_type varchar
+}
+
+Table assignments {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  title varchar [not null]
+  description text
+  subject_id uuid [not null, ref: > subjects.uuid]
+  group_id uuid [ref: > groups.uuid]
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  due_date date
+  max_score int
+  assignment_type varchar
+  active boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table grades {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid [not null, ref: > student_profiles.uuid]
+  subject_id uuid [not null, ref: > subjects.uuid]
+  assignment_id uuid [ref: > assignments.uuid]
+  score decimal [not null]
+  max_score decimal
+  comment text
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  created_at timestamp [not null]
+}
+
+Table attendances {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid [not null, ref: > student_profiles.uuid]
+  subject_id uuid [not null, ref: > subjects.uuid]
+  date date [not null]
+  status varchar [not null]
+  reason text
+  teacher_id uuid [ref: > teacher_profiles.uuid]
+  created_at timestamp [not null]
+}
+
+Table notifications {
+  uuid uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.uuid]
+  title varchar [not null]
+  message text [not null]
+  is_read boolean [not null, default: false]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}

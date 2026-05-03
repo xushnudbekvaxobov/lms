@@ -18,8 +18,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    log.warn("User not found with username: {}", username);
-                    return new UsernameNotFoundException("User not found with username: " + username);
+                    log.warn("User not registered with username: {}", username);
+                    return new UsernameNotFoundException("User not registered with username: " + username);
                 });
     }
 }

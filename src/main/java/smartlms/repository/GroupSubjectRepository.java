@@ -85,4 +85,6 @@ public interface GroupSubjectRepository extends JpaRepository<GroupSubjectEntity
     Page<GroupSubjectProjectionForTeachers> findAllByTeacherUsername(String username, Integer semester, Pageable pageable);
 
     GroupSubjectEntity findByIdAndTeacher_User_Username(UUID groupSubjectId, String username);
+
+    Page<GroupSubjectEntity> findByGroup_Id(UUID groupId, Pageable pageable);
 }

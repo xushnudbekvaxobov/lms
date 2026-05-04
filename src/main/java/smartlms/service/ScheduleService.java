@@ -1,11 +1,9 @@
 package smartlms.service;
 
-import smartlms.entity.ScheduleEntity;
-import smartlms.entity.enums.WeekDay;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import org.springframework.stereotype.Service;
+import smartlms.dto.request.ScheduleRequestDto;
 
+@Service
 public interface ScheduleService {
-
+    void createSchedule(ScheduleRequestDto scheduleRequestDto);
 }

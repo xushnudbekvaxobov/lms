@@ -24,6 +24,7 @@ import smartlms.repository.TeacherProfileRepository;
 import smartlms.service.GroupSubjectService;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Slf4j
@@ -130,6 +131,36 @@ public class GroupSubjectServiceImpl implements GroupSubjectService {
                 responsePage.getTotalElements(),
                 responsePage.getTotalPages(),
                 responsePage.isLast()
+        );
+    }
+
+    public PageResponse<GroupSubjectResponseDtoForAdmin> findAllGroupSubjectsByGroupId(UUID groupId, Pageable pageable){
+        Page<GroupSubjectEntity> groupSubjectEntityPage = groupSubjectRepository.findByGroup_Id(groupId, pageable);
+        Page<GroupSubjectResponseDtoForAdmin> responseDtoPage = groupSubjectEntityPage.map(groupSubject -> {
+            TeacherResponseDtoForStudents teacher = new TeacherResponseDtoForStudents(
+                    groupSubject.getTeacher().getId(),
+                    groupSubject.getTeacher().getFirstName(),
+                    groupSubject.getTeacher().getLastName()
+            );
+            SubjectResponseDto subject = new SubjectResponseDto(
+                    groupSubject.getSubject().getId(),
+                    groupSubject.getSubject().getName(),
+                    groupSubject.getSubject().getCode()
+            );
+            return new GroupSubjectResponseDtoForAdmin(
+                    groupSubject.getSemester(),
+                    groupSubject.getAcademicYear(),
+                    teacher,
+                    subject
+            );
+        });
+        return new PageResponse<>(
+                responseDtoPage.getContent(),
+                responseDtoPage.getNumber(),
+                responseDtoPage.getSize(),
+                responseDtoPage.getTotalElements(),
+                responseDtoPage.getTotalPages(),
+                responseDtoPage.isLast()
         );
     }
 }

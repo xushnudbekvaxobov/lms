@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import smartlms.dto.projection.GroupProjectionForAdmin;
 import smartlms.dto.request.GroupRequestDto;
 import smartlms.dto.response.GroupResponseDto;
+import smartlms.dto.response.GroupResponseDtoForAdmin;
 import smartlms.dto.response.PageResponse;
 import smartlms.entity.GroupEntity;
 import smartlms.exception.AlreadyExistsException;
@@ -36,17 +38,28 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public PageResponse<GroupResponseDto> getAllGroup(Pageable pageable) {
-        Page<GroupEntity> entityPage = groupRepository.findAll(pageable);
-        Page<GroupResponseDto> responseDtoPage = entityPage.map(groupMapper::toDto);
-        return PageResponse.<GroupResponseDto>builder()
-                .content(responseDtoPage.getContent())
-                .page(responseDtoPage.getNumber())
-                .size(responseDtoPage.getSize())
-                .totalElements(responseDtoPage.getTotalElements())
-                .totalPages(responseDtoPage.getTotalPages())
-                .last(responseDtoPage.isLast())
-                .build();
-    }
+    public PageResponse<GroupResponseDtoForAdmin> getAllGroup(Pageable pageable) {
+        Page<GroupProjectionForAdmin> entityPage = groupRepository.findAllProjectedBy(pageable);
+        Page<GroupResponseDtoForAdmin> responseDtoPage = entityPage.map(projection -> {
+            GroupResponseDto group = new GroupResponseDto(
+                    projection.getGroupId(),
+                    projection.getGroupName(),
+                    projection.getGroupCourse(),
+                    projection.getGroupFaculty()
+            );
+            return new GroupResponseDtoForAdmin(
+                    projection.getStudentCount(),
+                    projection.getSubjectCount(),
+                    group
+            );
+        });
+        return new PageResponse<>(
+                responseDtoPage.getContent(),
+                responseDtoPage.getNumber(),
+                responseDtoPage.getSize(),
+                responseDtoPage.getTotalElements(),
+                responseDtoPage.getTotalPages(),
+                responseDtoPage.isLast()
+        );}
 
 }

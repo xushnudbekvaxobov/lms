@@ -10,6 +10,8 @@ import smartlms.dto.request.GroupSubjectRequestDto;
 import smartlms.dto.response.ApiResponse;
 import smartlms.service.GroupSubjectService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/groups/subjects")
 public class GroupSubjectController {
@@ -47,5 +49,13 @@ public class GroupSubjectController {
                 .body(new ApiResponse<>(true, "Teachers groups getting successfully", groupSubjectService.findMyGroupsForTeachers(semester, pageable), 200));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{groupId}")
+    public ResponseEntity<ApiResponse<?>> findAllGroupSubjectsByGroupId(@PathVariable UUID groupId,
+                                                                        Pageable pageable) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "Group subjects retrieved successfully", groupSubjectService.findAllGroupSubjectsByGroupId(groupId, pageable), 200));
+    }
 
 }

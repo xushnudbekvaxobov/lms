@@ -88,7 +88,6 @@ public class JwtService {
     }
 
     public JwtResponseDto extractClaims(String token) {
-        try {
             Claims claims = Jwts
                     .parser()
                     .verifyWith(getSignKey())
@@ -98,13 +97,6 @@ public class JwtService {
             String role = claims.get("role").toString();
             String username = claims.getSubject();
             return new JwtResponseDto(role, username);
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT token is expired: {}", e.getMessage());
-            throw new UnauthorizedException("JWT token is expired");
-        } catch (JwtException ex) {
-            log.warn("JWT validation failed: {}", ex.getMessage());
-            throw new UnauthorizedException("JWT validation failed");
-        }
     }
 
    /* private SecretKey getSignKey() {

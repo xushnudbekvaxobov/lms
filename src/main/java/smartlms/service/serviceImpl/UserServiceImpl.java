@@ -79,19 +79,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-       try {
-           Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
-           UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+       UserEntity userEntity = userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(()-> new UnauthorizedException("User not registered"));
            if (userEntity.getStatus() != UserStatus.ACTIVE) {
                log.warn("User with username: {} is not active", loginRequestDto.getUsername());
                throw new UnauthorizedException("User is not active");
            }
+           if (!passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword())) {
+               log.warn("User with username: {} has incorrect password", loginRequestDto.getUsername());
+               throw  new UnauthorizedException("User password is incorrect");
+           }
            log.info("User logged in successfully with username: {}", loginRequestDto.getUsername());
            return new LoginResponseDto(jwtService.generateAccessToken(userEntity), jwtService.generateRefreshToken(userEntity));
-
-       }catch (AuthenticationException e){
-           throw new UnauthorizedException("Password is incorrect");
-       }
     }
 
     @Override

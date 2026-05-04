@@ -4,8 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -77,14 +79,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
-        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
-        if (userEntity.getStatus() != UserStatus.ACTIVE) {
-            log.warn("User with username: {} is not active", loginRequestDto.getUsername());
-            throw new UnauthorizedException("User is not active");
-        }
-        log.info("User logged in successfully with username: {}", loginRequestDto.getUsername());
-        return new LoginResponseDto(jwtService.generateAccessToken(userEntity), jwtService.generateRefreshToken(userEntity));
+       try {
+           Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+           UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+           if (userEntity.getStatus() != UserStatus.ACTIVE) {
+               log.warn("User with username: {} is not active", loginRequestDto.getUsername());
+               throw new UnauthorizedException("User is not active");
+           }
+           log.info("User logged in successfully with username: {}", loginRequestDto.getUsername());
+           return new LoginResponseDto(jwtService.generateAccessToken(userEntity), jwtService.generateRefreshToken(userEntity));
+
+       }catch (AuthenticationException e){
+           throw new UnauthorizedException("Password is incorrect");
+       }
     }
 
     @Override

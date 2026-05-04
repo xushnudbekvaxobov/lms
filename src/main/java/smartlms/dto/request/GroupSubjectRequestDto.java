@@ -1,9 +1,6 @@
 package smartlms.dto.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.UUID;
@@ -25,6 +22,8 @@ public class GroupSubjectRequestDto {
     @Max(value = 2, message = "Semester must be 1 or 2")
     private Integer semester;
     @NotBlank(message = "Academic year is required")
+    @Pattern(regexp = "^\\d{4}-\\d{4}$", message = "Academic year must follow the format 'YYYY-YYYY' (e.g., 2025-2026)")
     private String academicYear;
+    @Positive(message = "FinalScore must be positive")
     private Double finalScore;
 }
